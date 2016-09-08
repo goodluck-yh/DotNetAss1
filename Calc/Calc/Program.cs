@@ -6,54 +6,64 @@ using System.Threading.Tasks;
 
 namespace Calc
 {
-
+    
     class Program
     {
-        Stack<long> numStack = new Stack<long>();
-        Stack<String> opStack = new Stack<string>();
-        List<String> args = new List<string>();
+        //This stack stores numbers
+        private Stack<long> numStack = new Stack<long>();
+        //This stack stores operations
+        private Stack<String> opStack = new Stack<string>();
+        //This is list store all arguments needed in this program
+        private List<String> args = new List<string>();
+        
+        private const int TWO = 2;
 
         static void Main(string[] args)
         {
             //Console.WriteLine(args[0]);
             Program program = new Program();
-            //program.calculate(args[0]);
+            //program.Calcaulate(args[0]);
 
-            /*program.calculate("3+4+5+6");
-            program.calculate("3-4+5+6");
-            program.calculate("+3+4+5+6");
-            program.calculate("-3+4+5+6");
-            program.calculate("+3+-4+5+6");
-            program.calculate("+33+-44+55+66");
-            program.calculate("2--5++6");
-            program.calculate("5+4-3-10");
-            program.calculate("0+1-2+3-4+5-6+7-8+9");
-            program.calculate("-3++3/4--2*4");
-            program.calculate("7%3*5");
-            program.calculate("7*5%3");*/
+            program.Calculate("3+4+5+6");
+            program.Calculate("3-4+5+6");
+            program.Calculate("+3+4+5+6");
+            program.Calculate("-3+4+5+6");
+            program.Calculate("+3+-4+5+6");
+            program.Calculate("+33+-44+55+66");
+            program.Calculate("2--5++6");
+            program.Calculate("5+4-3-10");
+            program.Calculate("0+1-2+3-4+5-6+7-8+9");
+            program.Calculate("-3++3/4--2*4");
+            program.Calculate("7%3*5");
+            program.Calculate("7*5%3");
 
-            /*program.calculate("2121212121*2020202020");
-            program.calculate("3/0");
-            program.calculate("3.0+4%6");
-            program.calculate("3+4/6+");
-            program.calculate("3++ +4-6");
-            program.calculate("3+6+3333333333333");
-            program.calculate("+3+-4+5+6+");*/
+            /*program.Calculate("2121212121+2020202020");
+            program.Calculate("3/0");
+            program.Calculate("3.0+4%6");
+            program.Calculate("3+4/6+");
+            program.Calculate("3++ +4-6");
+            program.Calculate("3+6+3333333333333");
+            program.Calculate("+3+-4+5+6+");*/
 
             Console.Read();
         }
 
-        public void calculate(String arg)
+        /*
+         * This method is to calculate and print out the result
+         * The parameter arg is the expression the program need to calculate
+         */
+        public void Calculate(String arg)
         {
+            //clear all stack and list
             numStack.Clear();
             opStack.Clear();
             args.Clear();
-            bool result = parse(arg);
+
+            //parse the expression and store information into list
+            bool result = Parse(arg);
             if (result == false)
             {
-                Console.WriteLine("Invalid Input");
-                Console.Read();
-                Environment.Exit(0);
+                ErrorMessage("Invalid Input");
             }
             else
             {
@@ -64,34 +74,43 @@ namespace Calc
                 Console.WriteLine();
             }
 
-            initStack();
-            getResult();
+            //move inforamtion from list to numStack and opStack
+            InitStack();
 
+            //calculate expression and get result
+            GetResult();
+
+            //Check whether the result is valid; If so, print it
             if(numStack.Count == 1)
             {
                 Console.WriteLine(numStack.Pop());
             }else
             {
-                Console.WriteLine("Some errors I don't know");
-                Console.Read();
-                Environment.Exit(0);
+                ErrorMessage("Some errors I don't know");
             }
         }
 
-        public void getResult()
+
+        /*
+         * This method is to calculate and get the result
+         */
+        private void GetResult()
         {
+            //reverse numStack and store into reverseNum
             Stack<long> reverseNum = new Stack<long>();
             while (numStack.Count != 0)
             {
                 reverseNum.Push(numStack.Pop());
             }
 
+            //reverse opStack and store into reverseOp
             Stack<String> reverseOp = new Stack<string>();
             while (opStack.Count != 0)
             {
                 reverseOp.Push(opStack.Pop());
             }
 
+            //calculate and get the result
             while (reverseOp.Count > 0)
             {
                 String op = reverseOp.Pop();
@@ -102,47 +121,47 @@ namespace Calc
                 {
                     case "+":
                         result = num1 + num2;
-                        if (result > Int32.MaxValue || result < Int32.MinValue)
-                        {
-                            Console.WriteLine("Out of Range");
-                            Console.Read();
-                            Environment.Exit(0);
-                        }
+                        IsOutOfRange(result);
                         reverseNum.Push(result);
                         break;
                     case "-":
                         result = num1 - num2;
-                        if (result > Int32.MaxValue || result < Int32.MinValue)
-                        {
-                            Console.WriteLine("Out of Range");
-                            Console.Read();
-                            Environment.Exit(0);
-                        }
+                        IsOutOfRange(result);
                         reverseNum.Push(result);
                         break;
                 }
             }
+
+            //set value for numStack and opStack
             numStack = reverseNum;
             opStack = reverseOp;
         }
 
-        public void initStack()
+
+        /*
+         * This method is to initialize stacks. move inforamtion from list to numStack and opStack
+         */
+        private void InitStack()
         {
             for(int i = 0; i < args.Count; i++)
             {
-                if(i % 2 == 0)  //get num
+                if(i % TWO == 0)  //deal with numbers
                 {
-                    initNumStack(i);
-                }else if(i % 2 == 1)  //get op
+                    InitNumStack(i);
+                }else if(i % TWO == 1)  //deal with operations
                 {
-                    initOpStack(ref i);
+                    InitOpStack(ref i);
                 }
             }
         }
 
-        public void initOpStack(ref int i)
+        /*
+         * This method is to initialize operation stack
+         * The parameter index gives the index in args
+         */
+        private void InitOpStack(ref int index)
         {
-            String operation = args[i];
+            String operation = args[index];
             switch (operation)
             {
                 case "+":
@@ -152,142 +171,278 @@ namespace Calc
                     opStack.Push(operation);
                     break;
                 case "*":
-                    mult(ref i);
+                    Mult(ref index);
                     break;
                 case "/":
-                    div(ref i);
+                    Div(ref index);
                     break;
                 case "%":
-                    mod(ref i);
+                    Mod(ref index);
                     break;
             }
         }
 
-        public void mult(ref int i)
+        /*
+         * This method is to deal with multiplication operation
+         * The parameter index gives the index in args
+         */
+        private void Mult(ref int index)
         {
             long num1 = numStack.Pop();
-            i++;
-            long num2 = Int64.Parse(args.ElementAt(i));
+            index++;
+            long num2 = Int64.Parse(args.ElementAt(index));
             long result = num1 * num2;
-            if(result > Int32.MaxValue || result < Int32.MinValue)
-            {
-                Console.WriteLine("Out of Range");
-                Console.Read();
-                Environment.Exit(0);
-            }
+            IsOutOfRange(result);
             numStack.Push(result);
         }
 
-        public void div(ref int i)
+        /*
+         * This method is to deal with division operation
+         * The parameter index gives the index in args
+         */
+        private void Div(ref int index)
         {
             long num1 = numStack.Pop();
-            i++;
-            long num2 = Int64.Parse(args.ElementAt(i));
+            index++;
+            long num2 = Int64.Parse(args.ElementAt(index));
             if(num2 == 0)
             {
-                Console.WriteLine("Division by zero");
-                Console.Read();
-                Environment.Exit(0);
+                ErrorMessage("Division by zero");
             }
             long result = num1 / num2;
             numStack.Push(result);
         }
 
-        public void mod(ref int i)
+        /*
+         * This method is to deal with modulo operation
+         * The parameter index gives the index in args
+         */
+        private void Mod(ref int index)
         {
             long num1 = numStack.Pop();
-            i++;
-            long num2 = Int64.Parse(args.ElementAt(i));
+            index++;
+            long num2 = Int64.Parse(args.ElementAt(index));
             if (num2 == 0)
             {
-                Console.WriteLine("Mod by zero");
-                Console.Read();
-                Environment.Exit(0);
+                ErrorMessage("Mod by zero");
             }
             long result = num1 % num2;
             numStack.Push(result);
         }
 
-        public void initNumStack(int i)
+        /*
+         * This method is to initialize numStack 
+         * The parameter index gives the index in args
+         */
+        private void InitNumStack(int index)
         {
-            long temp = Int64.Parse(args.ElementAt(i));
-            if(temp > Int32.MaxValue || temp < Int32.MinValue)
+            long num = Int64.Parse(args.ElementAt(index));
+            if(num > Int32.MaxValue || num < Int32.MinValue)
             {
-                Console.WriteLine("Invalid Input");
-                Console.Read();
-                Environment.Exit(0);
+                ErrorMessage("Invalid Input");
             }
-            numStack.Push(temp);
+            numStack.Push(num);
         }
 
-        public bool parse(String arg)
+
+        /*
+         * This method is to parse the expression 
+         * The parameter arg is the expression which need to be calculated
+         * It returns whether the expression is parsed successfully
+         */
+        private bool Parse(String arg)
         {
             bool isNumber = true;
+
             for(int i = 0; i < arg.Length; i++)
             {
-                if(isNumber == true)
+                //parse the number
+                if(isNumber == true) 
                 {
-                    if(arg.ElementAt(i) == '+' || arg.ElementAt(i) == '-')
-                    {
-                        String temp = arg.ElementAt(i).ToString();
-                        i++;
-                        if(i == arg.Length)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            if(arg.ElementAt(i) >= '0' && arg.ElementAt(i) <= '9')
-                            {
-                                while (i < arg.Length && arg.ElementAt(i) >= '0' && arg.ElementAt(i) <= '9')
-                                {
-                                    temp = temp + arg.ElementAt(i).ToString();
-                                    i++;
-                                }
-                                i--;
-                                args.Add(temp);
-                                isNumber = false;
-                            }else
-                            {
-                                return false;
-                            }
-                        }
-                    }else if (arg.ElementAt(i) >= '0' && arg.ElementAt(i) <= '9')
-                    {
-                        String temp = "";
-                        while (i < arg.Length && arg.ElementAt(i) >= '0' && arg.ElementAt(i) <= '9' )
-                        {
-                            temp = temp + arg.ElementAt(i).ToString();
-                            i++;
-                        }
-                        i--;
-                        args.Add(temp);
-                        isNumber = false;
-                    }else
+                    bool isSuccess = ParseNumber(arg, ref i);
+                    if(isSuccess == false)
                     {
                         return false;
                     }
-                }else
+                    isNumber = false;
+                }
+                //parse the operation
+                else
                 {
-                    if(arg.ElementAt(i) == '+' || arg.ElementAt(i) == '-' || arg.ElementAt(i) == '*' || arg.ElementAt(i) == '/' || arg.ElementAt(i) == '%')
+                    bool isSuccess = ParseOper(arg, ref i);
+                    if(isSuccess == false)
                     {
-                        String temp = arg.ElementAt(i).ToString();
+                        return false;
+                    }
+                    isNumber = true;
+                }
+            }
+
+            return !isNumber;
+        }
+
+        /*
+         * This method is to parse  operations
+         * The parameter arg is the expession which needs to be calculated 
+         * The parameter index gives the index in arg
+         * It returns whether the expression is parsed successfully
+         */
+        private bool ParseOper(String arg, ref int index)
+        {
+            if (CheckIsOperation(arg, index))
+            {
+                String temp = arg.ElementAt(index).ToString();
+                args.Add(temp);
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+
+        /*
+         * This method is to parse  numbers
+         * The parameter arg is the expession which needs to be calculated 
+         * The parameter index gives the index in arg
+         * It returns whether the expression is parsed successfully
+         */
+        private bool ParseNumber(String arg, ref int index )
+        {
+            //deal with the number with sign, such as +1 or -3
+            if (CheckIsSign(arg, index))
+            {
+                //get sign
+                String temp = arg.ElementAt(index).ToString();
+                index++;
+
+                //check whether it is out of range
+                if (index == arg.Length)
+                {
+                    return false;
+                }
+                else
+                {
+                    //get pure number
+                    if (CheckIsNumber(arg, index))
+                    {
+                        GetPureNumber(arg, ref index, ref temp);
                         args.Add(temp);
-                        isNumber = true;
-                    }else
+                    }
+                    else
                     {
                         return false;
                     }
                 }
             }
-            if(isNumber == true)
+            //deal with the number without sign, such as 1 or 3
+            else if (CheckIsNumber(arg, index))
+            {
+                String temp = "";
+                GetPureNumber(arg, ref index, ref temp);
+                args.Add(temp);
+            }
+            else
             {
                 return false;
-            }else
+            }
+            return true;
+        }
+
+
+        /*
+         * This method is to check whether it is a operation
+         * The parameter arg is the expession which needs to be calculated 
+         * The parameter index gives the index in arg
+         * It returns whether it is a operation
+         */
+        private bool CheckIsOperation(String arg, int index)
+        {
+            if (arg.ElementAt(index) == '+' || arg.ElementAt(index) == '-' || arg.ElementAt(index) == '*' || arg.ElementAt(index) == '/' || arg.ElementAt(index) == '%')
             {
                 return true;
+            }else
+            {
+                return false;
             }
-            
+        }
+
+
+        /*
+         * This method is to check whether it is a sign
+         * The parameter arg is the expession which needs to be calculated 
+         * The parameter index gives the index in arg
+         * It returns whether it is a sign
+         */
+        private bool CheckIsSign(String arg, int index)
+        {
+            if (arg.ElementAt(index) == '+' || arg.ElementAt(index) == '-')
+            {
+                return true;
+            }else
+            {
+                return false;
+            }
+        }
+
+
+        /*
+         * This method is to check whether it is a number
+         * The parameter arg is the expession which needs to be calculated 
+         * The parameter index gives the index in arg
+         * It returns whether it is a number
+         */
+        private bool CheckIsNumber(String arg, int index)
+        {
+            if (arg.ElementAt(index) >= '0' && arg.ElementAt(index) <= '9')
+            {
+                return true;
+            }else
+            {
+                return false;
+            }
+        }
+
+
+        /*
+         * This method is to get pure number
+         * The parameter arg is the expession which needs to be calculated 
+         * The parameter index gives the index in arg
+         * The parameter num store number after executing this method
+         */
+        private void GetPureNumber(String arg, ref int index, ref String number)
+        {
+            while (index < arg.Length && CheckIsNumber(arg, index))
+            {
+                number = number + arg.ElementAt(index).ToString();
+                index++;
+            }
+            index--;
+        }
+
+
+        /*
+         * This method is to check whether num is out of range
+         * The parameter num is the number which needs to be checked
+         */
+        private void IsOutOfRange(long num)
+        {
+            if (num > Int32.MaxValue || num < Int32.MinValue)
+            {
+                ErrorMessage("Invalid Input");
+            }
+        }
+
+        /*
+         * This method is to show the error information and exit the program
+         * The parameter errorInfor is the error inforamtion which needs to be displayed
+         */
+        private void ErrorMessage(String errorInfo)
+        {
+            Console.WriteLine(errorInfo);
+            Console.Read();
+            Environment.Exit(0);
         }
     }
 }
