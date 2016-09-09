@@ -22,30 +22,13 @@ namespace Calc
         {
             //Console.WriteLine(args[0]);
             Program program = new Program();
-            //program.Calcaulate(args[0]);
+            if(args.Length != 1 ){
+                Console.WriteLine("Invalid Input");
+                return;
+            }
+            program.Calculate(args[0]);
 
-            program.Calculate("3+4+5+6");
-            program.Calculate("3-4+5+6");
-            program.Calculate("+3+4+5+6");
-            program.Calculate("-3+4+5+6");
-            program.Calculate("+3+-4+5+6");
-            program.Calculate("+33+-44+55+66");
-            program.Calculate("2--5++6");
-            program.Calculate("5+4-3-10");
-            program.Calculate("0+1-2+3-4+5-6+7-8+9");
-            program.Calculate("-3++3/4--2*4");
-            program.Calculate("7%3*5");
-            program.Calculate("7*5%3");
-
-            /*program.Calculate("2121212121+2020202020");
-            program.Calculate("3/0");
-            program.Calculate("3.0+4%6");
-            program.Calculate("3+4/6+");
-            program.Calculate("3++ +4-6");
-            program.Calculate("3+6+3333333333333");
-            program.Calculate("+3+-4+5+6+");*/
-
-            Console.Read();
+           
         }
 
         /*
@@ -65,14 +48,7 @@ namespace Calc
             {
                 ErrorMessage("Invalid Input");
             }
-            else
-            {
-                for(int i = 0; i < args.Count; i++)
-                {
-                    Console.Write(args[i] + "  ");
-                }
-                Console.WriteLine();
-            }
+            
 
             //move inforamtion from list to numStack and opStack
             InitStack();
@@ -441,7 +417,6 @@ namespace Calc
         private void ErrorMessage(String errorInfo)
         {
             Console.WriteLine(errorInfo);
-            Console.Read();
             Environment.Exit(0);
         }
     }
