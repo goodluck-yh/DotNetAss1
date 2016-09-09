@@ -20,14 +20,12 @@ namespace Calc
 
         static void Main(string[] args)
         {
-            //Console.WriteLine(args[0]);
             Program program = new Program();
             if(args.Length != 1 ){
                 Console.WriteLine("Invalid Input");
                 return;
             }
             program.Calculate(args[0]);
-
            
         }
 
@@ -200,7 +198,7 @@ namespace Calc
             long num2 = Int64.Parse(args.ElementAt(index));
             if (num2 == 0)
             {
-                ErrorMessage("Mod by zero");
+                ErrorMessage("Division by zero");
             }
             long result = num1 % num2;
             numStack.Push(result);
@@ -335,10 +333,14 @@ namespace Calc
          */
         private bool CheckIsOperation(String arg, int index)
         {
-            if (arg.ElementAt(index) == '+' || arg.ElementAt(index) == '-' || arg.ElementAt(index) == '*' || arg.ElementAt(index) == '/' || arg.ElementAt(index) == '%')
+            if (arg.ElementAt(index) == '+' || arg.ElementAt(index) == '-' )
             {
                 return true;
-            }else
+            } else if (arg.ElementAt(index) == '*' || arg.ElementAt(index) == '/' || arg.ElementAt(index) == '%')
+            {
+                return true;
+            }
+            else
             {
                 return false;
             }
@@ -406,7 +408,7 @@ namespace Calc
         {
             if (num > Int32.MaxValue || num < Int32.MinValue)
             {
-                ErrorMessage("Invalid Input");
+                ErrorMessage("Out of Range");
             }
         }
 
